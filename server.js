@@ -55,7 +55,7 @@ var app = require('http').createServer(function (req, res) {
           require("fs").writeFile(__dirname+"/tmp_img/"+image+"_out.png", body, 'base64', function(err) {
              if(err) throw err;
            });
-           image++;
+        image++;
       });
       res.writeHead(200, {'Content-Type': 'text/html'});
       res.end('post received');
@@ -86,34 +86,27 @@ var run_ph= function(){
 }
 
 var getInstagram = function(callback){
-  T.get('search/tweets', { q: 'instagr.am', count: 1}, function(err, reply) {
-    var tweet = reply.statuses[0];
-    var imgurl = parseTextForURL(tweet.text);
-    console.log("url: " + imgurl);
+  T.get('search/tweets', { q: 'instagr.am', count: 10}, function(err, reply) {
+    var tweet = reply.statuses[Math.floor(Math.random()*reply.statuses.length)];
     console.log("tweet: " + tweet.text);
     fullimgurl = tweet.entities.urls[0].expanded_url;
     console.log("full url: " + fullimgurl);
-    id = fullimgurl.match(/(p\/.*\/)/ig)[0].replace('p/','').slice(0,-1);
-    embedlyOembed(imgurl, function(embed){
+    try{
+    id = fullimgurl.match(/(p\/.*)/ig)[0].replace('p/','').slice(0,-1);
+    } catch(err){
+      sendInstagram();
+    }
+    embedlyOembed(fullimgurl, function(embed){
         if(embed.type=="photo"){
             var src = embed.url;
             found=true;
             callback(src);
         } else{
             console.log('missed');
+            sendInstagram();
         }
     });
   });
-}
-
-var expandUrl = function(shortUrl, callback) {
-  request( { method: "HEAD", url: shortUrl, followAllRedirects: true },
-      function (error, response) {
-        callback(response.request.href);
-        if(error){
-          console.log(error);
-        }
-      });
 }
 
 var parseTextForURL = function(text){
@@ -125,12 +118,11 @@ var parseTextForURL = function(text){
 var embedlyOembed = function(url, callback){
   var call = "https://api.embed.ly/1/oembed?key="+EMBEDLY_KEY+"&url=";
   var req = request(call+url, function(err, res, body){
-    if(err){
-     console.log(err);
-    }
     if(!err && res.statusCode == 200){
       var embed = JSON.parse(body);
       callback(embed);
+    } else{
+      sendInstagram();
     }
   });
 }
@@ -152,12 +144,11 @@ var sendInstagram= function(){
 sendInstagram();
 
 var makeGif = function(){
-    var filename = __dirname+'/gifs/' + id +"_anim.gif";
+    var filename = __dirname+'/gifs/' + id +".gif";
     var child = exec('bash '+__dirname+'/make_gifs.sh '+filename, function(err, stdout, stderr){
-        if(err) throw err;
         var removetmp = exec('rm '+__dirname+'/tmp_img/*out.png', function(err, stdout, stderr){
             console.log('gif animation complete');
-           // postGif(filename);
+            postGif(filename);
         });
     });
     console.log(id);
@@ -171,13 +162,16 @@ var postGif = function(filename){
   var photo = fs.readFile(filename, function(err,photo){
     if (err) throw err;
     //tags
+    var source = "http://instagram.com/p/"+id;
+    console.log(source);
     var tag_choices= ['lines', 'minimal', 'slit-scan', 'colors',
       'animation', 'instagram', 'calm', 'image processing', 'code art'];
     var random_tag = getRandomElement(tag_choices);
     console.log("random tag: "+random_tag);
     tumblr.post('/post', {
       type: 'photo',
-      data: [photo],
+      source: source,
+      data: [photo]
       tags: 'gif, '+ random_tag
     }, function(err, json){
       console.log(json, err);
