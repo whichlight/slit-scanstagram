@@ -53,7 +53,7 @@ var app = require('http').createServer(function (req, res) {
           console.log('done: '+image);
           body = body.replace("/^data:image\/png;base64,/", "");
           require("fs").writeFile(__dirname+"/tmp_img/"+image+"_out.png", body, 'base64', function(err) {
-             if(err) throw err;
+             if(err) console.error(err);
            });
         image++;
       });
@@ -160,7 +160,7 @@ var getRandomElement= function(arr){
 
 var postGif = function(filename){
   var photo = fs.readFile(filename, function(err,photo){
-    if (err) throw err;
+    if (err) console.error(err);
     //tags
     var source = "http://instagram.com/p/"+id;
     console.log(source);
@@ -175,10 +175,10 @@ var postGif = function(filename){
       tags: 'gif, '+ random_tag
     }, function(err, json){
       console.log(json, err);
-      if (err) throw err;
+      if (err) console.error(err);
       console.log("posted on tumblr");
       var removegif = exec('rm '+filename, function(err, stdout, stderr){
-        if (err) throw err;
+        if (err) console.error(err);
         console.log('deleted gif from hd');
       });
       process.exit();
