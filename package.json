@@ -1,0 +1,38 @@
+{
+  "name": "slit-scanstagram",
+  "version": "0.0.0",
+  "description": "generating gifs from random instagram images on twitter to post to tumblr",
+  "main": "server.js",
+  "dependencies": {
+    "hyperquest": "~0.2.0",
+    "node-static": "~0.7.2",
+    "phantom": "~0.5.4",
+    "request": "~2.31.0",
+    "tumblrwks": "~0.2.0",
+    "twit": "~1.1.11"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/whichlight/slit-scanstagram.git"
+  },
+  "keywords": [
+    "gif",
+    "tumblr",
+    "twitter",
+    "instagram",
+    "canvas",
+    "image",
+    "processing",
+    "slit-scan"
+  ],
+  "author": "whichlight",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/whichlight/slit-scanstagram/issues"
+  }
+}
