@@ -86,7 +86,7 @@ var run_ph= function(){
 }
 
 var getInstagram = function(callback){
-  T.get('search/tweets', { q: 'instagr.am sunset', count: 10}, function(err, reply) {
+  T.get('search/tweets', { q: 'instagram sunset', count: 20}, function(err, reply) {
     var tweet = reply.statuses[Math.floor(Math.random()*reply.statuses.length)];
     console.log("tweet: " + tweet.text);
     fullimgurl = tweet.entities.urls[0].expanded_url;
