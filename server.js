@@ -1,4 +1,4 @@
-#! /usr/bin/node
+#! /home/whichlight/.nvm/v0.10.24/bin/node
 var phantom = require('phantom'),
   fs = require('fs'),
   exec= require('child_process').exec,
@@ -86,7 +86,7 @@ var run_ph= function(){
 }
 
 var getInstagram = function(callback){
-  T.get('search/tweets', { q: 'instagr.am', count: 10}, function(err, reply) {
+  T.get('search/tweets', { q: 'instagr.am sunset', count: 10}, function(err, reply) {
     var tweet = reply.statuses[Math.floor(Math.random()*reply.statuses.length)];
     console.log("tweet: " + tweet.text);
     fullimgurl = tweet.entities.urls[0].expanded_url;
@@ -171,7 +171,7 @@ var postGif = function(filename){
     tumblr.post('/post', {
       type: 'photo',
       source: source,
-      data: [photo]
+      data: [photo],
       tags: 'gif, '+ random_tag
     }, function(err, json){
       console.log(json, err);
