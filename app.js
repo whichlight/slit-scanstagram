@@ -5,6 +5,7 @@ var slices;
 var colArray = new Array();
 var canvas, ctx, pixels, pixData;
 var dcanvas= document.createElement("canvas");
+var blurRadius = 100;
 
 
 var slitScanIMG= function(x){
@@ -59,6 +60,50 @@ var processImage = function() {
   }
 }
 
+var average = function(arr){
+  return arr.reduce(function(a,b){return a+b})/arr.length;
+}
+
+
+var blurHorizontal = function(radius){
+   ctx = canvas.getContext('2d');
+  pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  pixData = pixels.data;
+  var blurData = new Array();
+  pixColorLen = pixData.length/4;
+
+
+  for(var i =0; i<pixData.length; i++){
+   blurData[i]=pixData[i];
+  }
+
+  for(var i =0; i<pixColorLen; i++){
+    var r = [];
+    var g = [];
+    var b = [];
+    for(var k = -1*radius; k<radius; k++){
+      var index=i+k;
+      if(index<0){
+        index += pixColorLen;
+      } else if(index>(pixColorLen)) {
+        index-=(pixColorLen);;
+      }
+      r.push(pixData[4*index]);
+      g.push(pixData[4*index+1]);
+      b.push(pixData[4*index+2]);
+    }
+    blurData[4*i]=Math.floor(average(r));
+    blurData[4*i+1]=Math.floor(average(g));
+    blurData[4*i+2]=Math.floor(average(b));
+  }
+
+  for(var i =0; i<pixData.length; i++){
+    pixData[i]=blurData[i];
+  }
+  pixels.data = pixData;
+  ctx.putImageData(pixels, 0, 0);
+}
+
 var initIMG = function(source){
   canvas = document.getElementById("canvas");
   var img = new Image();
@@ -66,6 +111,8 @@ var initIMG = function(source){
   img.onload = function(){
     var ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    //stackBlurCanvasRGBA('canvas',0,0,canvas.width,canvas.height,10);
+    blurHorizontal(blurRadius);
     processImage();
   }
 }
@@ -76,5 +123,5 @@ $(document).ready(function(){
       console.log(res);
       initIMG(res);
   })
-//  initIMG("media/landscape.jpg");
+  //initIMG("media/landscape.jpg");
 });
