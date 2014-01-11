@@ -86,8 +86,10 @@ var run_ph= function(){
 }
 
 var getInstagram = function(callback){
-  T.get('search/tweets', { q: 'instagr.am', count: 10}, function(err, reply) {
-    var tweet = reply.statuses[Math.floor(Math.random()*reply.statuses.length)];
+  T.get('search/tweets', { q: 'instagram sunset', count: 20}, function(err, reply) {
+    var randIndex = Math.floor(Math.random()*reply.statuses.length);
+    console.log(randIndex);
+    var tweet = reply.statuses[randIndex];
     console.log("tweet: " + tweet.text);
     fullimgurl = tweet.entities.urls[0].expanded_url;
     console.log("full url: " + fullimgurl);
@@ -148,7 +150,7 @@ var makeGif = function(){
     var child = exec('bash '+__dirname+'/make_gifs.sh '+filename, function(err, stdout, stderr){
         var removetmp = exec('rm '+__dirname+'/tmp_img/*out.png', function(err, stdout, stderr){
             console.log('gif animation complete');
-            postGif(filename);
+            //postGif(filename);
         });
     });
     console.log(id);
@@ -171,7 +173,7 @@ var postGif = function(filename){
     tumblr.post('/post', {
       type: 'photo',
       source: source,
-      data: [photo]
+      data: [photo],
       tags: 'gif, '+ random_tag
     }, function(err, json){
       console.log(json, err);
