@@ -1,5 +1,5 @@
 var imgs = [];
-var numFrames = 40;
+var numFrames = 30;
 var slices;
 
 var colArray = new Array();

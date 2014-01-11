@@ -19,6 +19,7 @@ var currentInstagramURL;
 var generating;
 var fileServer = new server.Server(__dirname);
 var image=0;
+var finished_img = 0;
 var img_size=30;
 
 var tumblr = new Tumblr({
@@ -52,10 +53,14 @@ var app = require('http').createServer(function (req, res) {
       req.on('end', function () {
           console.log('done: '+image);
           body = body.replace("/^data:image\/png;base64,/", "");
-          require("fs").writeFile(__dirname+"/tmp_img/"+image+"_out.png", body, 'base64', function(err) {
+          fs.writeFile(__dirname+"/tmp_img/"+image+"_out.png", body, 'base64', function(err) {
              if(err) console.error(err);
+	     finished_img++;
+             if(finished_img == img_size){
+              makeGif();
+	     }
            });
-        image++;
+           image++;
       });
       res.writeHead(200, {'Content-Type': 'text/html'});
       res.end('post received');
@@ -66,7 +71,6 @@ var app = require('http').createServer(function (req, res) {
   }
   if (req.url == '/finished'){
     res.writeHead(200, {'Content-Type': 'text/plain'});
-       makeGif();
       res.end('making gif');
   }
 }).listen(8082);
@@ -145,13 +149,13 @@ sendInstagram();
 
 var makeGif = function(){
     var filename = __dirname+'/gifs/' + id +".gif";
+    console.log("starting gif: " + id + ".gif");
     var child = exec('bash '+__dirname+'/make_gifs.sh '+filename, function(err, stdout, stderr){
         var removetmp = exec('rm '+__dirname+'/tmp_img/*out.png', function(err, stdout, stderr){
             console.log('gif animation complete');
             postGif(filename);
         });
     });
-    console.log(id);
 }
 
 var getRandomElement= function(arr){
@@ -172,7 +176,7 @@ var postGif = function(filename){
       type: 'photo',
       source: source,
       data: [photo],
-      tags: 'gif, '+ random_tag
+      tags: 'gif, '+ random_tag+','+ source
     }, function(err, json){
       console.log(json, err);
       if (err) console.error(err);
