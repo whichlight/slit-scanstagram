@@ -1,12 +1,12 @@
 var imgs = [];
-var numFrames = 30;
+var numFrames = 60;
 var slices;
 var imageData;
 
 var colArray = new Array();
 var canvas, ctx, pixels, pixData;
 var dcanvas= document.createElement("canvas");
-var blurRadius = 5;
+var blurRadius = 30;
 
 
 var slitScanIMG= function(x){
@@ -73,6 +73,43 @@ var blurHorizontal = function(radius){
   var blurData = new Array();
   pixColorLen = pixData.length/4;
 
+  var blurArray = [];
+  for(var i=0; i<(pixData.length/4); i++){
+    colArray[i] = [pixData[4*i], pixData[4*i+1], pixData[4*i+2], pixData[4*i+3]];
+    blurArray[i] = [pixData[4*i], pixData[4*i+1], pixData[4*i+2], pixData[4*i+3]];
+  }
+
+  for(var j=0; j<(canvas.height); j++){
+    for(var i=0; i<(canvas.width); i++){
+      var r = [];
+      var g = [];
+      var b = [];
+      if(i>0){
+        for(var k=0; k<Math.min(radius,i); k++){
+          r.push(colArray[j*canvas.width+i-k][0]);
+          g.push(colArray[j*canvas.width+i-k][1]);
+          b.push(colArray[j*canvas.width+i-k][2]);
+        }
+        blurArray[j*canvas.width+i][0]=Math.floor(average(r));
+        blurArray[j*canvas.width+i][1]=Math.floor(average(g));
+        blurArray[j*canvas.width+i][2]=Math.floor(average(b));
+      }
+      else{
+        blurArray[j*canvas.width+i]=colArray[j*canvas.width+i];
+      }
+    }
+  }
+
+  for(var i=0; i<(pixData.length/4); i++){
+    pixData[4*i]=blurArray[i][0];
+    pixData[4*i+1]=blurArray[i][1];
+    pixData[4*i+2]=blurArray[i][2];
+    pixData[4*i+3]=blurArray[i][3];
+  }
+  ctx.putImageData(pixels,0,0);
+
+
+  /*
   for(var i =0; i<pixData.length; i++){
    blurData[i]=pixData[i];
   }
@@ -100,6 +137,7 @@ var blurHorizontal = function(radius){
   for(var i =0; i<pixData.length; i++){
     pixData[i]=blurData[i];
   }
+  */
   pixels.data = pixData;
   ctx.putImageData(pixels, 0, 0);
 }
@@ -118,12 +156,61 @@ var sortFxn = function(a,b,fx, arr){
   }
 }
 
+var sortVertical = function(){
+  ctx = canvas.getContext('2d');
+  pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  pixData = pixels.data;
+  for(var i=0; i<(pixData.length/4); i++){
+    colArray[i] = [pixData[4*i], pixData[4*i+1], pixData[4*i+2], pixData[4*i+3]];
+  }
+
+
+  for(var i=0; i<(canvas.width); i++){
+
+    var a = new Array();
+    for(var j=0; j<(canvas.height); j++){
+      a.push(colArray[j*canvas.width+i]);
+    }
+    a.sort(function(colA,colB){
+      var ba = brightness(colA[0],colA[1], colA[2]);
+      var bb = brightness(colB[0],colB[1], colB[2]);
+      // var ba = colA[2];
+      // var bb = colB[2];
+      var val = bb-ba;
+      if (Math.abs(val) <0.5){ val=1;}
+      return val;
+    });
+    for(var j = 0; j < canvas.height; j++){
+      colArray[j*canvas.width+i]=a[j];
+    }
+
+  }
+/*
+   colArray.sort(function(colA,colB){
+         var ba = brightness(colA[0],colA[1], colA[2]);
+         var bb = brightness(colB[0],colB[1], colB[2]);
+       //  var ba = colA[0]+ colA[1] +colA[2];
+     //    var bb = colB[0] + colB[1] + colB[2];
+         return bb-ba;
+       });
+
+*/
+
+
+  for(var i=0; i<(pixData.length/4); i++){
+    pixData[4*i]=colArray[i][0];
+    pixData[4*i+1]=colArray[i][1];
+    pixData[4*i+2]=colArray[i][2];
+    pixData[4*i+3]=colArray[i][3];
+  }
+  ctx.putImageData(pixels,0,0);
+}
+
+
 var sortHorizontal = function(){
   ctx = canvas.getContext('2d');
   pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
   pixData = pixels.data;
-
-
   for(var i=0; i<(pixData.length/4); i++){
     colArray[i] = [pixData[4*i], pixData[4*i+1], pixData[4*i+2], pixData[4*i+3]];
   }
@@ -136,10 +223,10 @@ var sortHorizontal = function(){
     a.sort(function(colA,colB){
          var ba = brightness(colA[0],colA[1], colA[2]);
          var bb = brightness(colB[0],colB[1], colB[2]);
-        // var ba = colA[2];
-        // var bb = colB[2];
+    //     var ba = colA[0];
+     //    var bb = colB[0];
          var val = bb-ba;
-         if (Math.abs(val) <1){ val=1;}
+         if (Math.abs(val) <0.5){ val=1;}
          return val;
        });
     for(var j = 0; j < a.length; j++){
@@ -187,20 +274,18 @@ var initIMG = function(source){
     var ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     //stackBlurCanvasRGBA('canvas',0,0,canvas.width,canvas.height,10);
+    sortVertical();
     sortHorizontal();
-    //blurHorizontal(blurRadius);
-
+    blurHorizontal(blurRadius);
     processImage();
   }
 }
 
 
 $(document).ready(function(){
-/*
   $.get("/getimg").done(function(res){
      console.log(res);
       initIMG(res);
   })
-*/
-  initIMG("media/jBDt-fo9Cl.jpg");
+  //initIMG("media/nThyBKlsog.jpg");
 });
