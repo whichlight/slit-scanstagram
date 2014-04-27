@@ -1,4 +1,4 @@
-#! /home/whichlight/.nvm/v0.10.24/bin/node
+//#! /home/whichlight/.nvm/v0.10.24/bin/node
 var phantom = require('phantom'),
   fs = require('fs'),
   exec= require('child_process').exec,
@@ -100,6 +100,7 @@ var getInstagram = function(callback){
     try{
     id = fullimgurl.match(/(p\/.*)/ig)[0].replace('p/','').slice(0,-1);
     } catch(err){
+      console.log(err);
       sendInstagram();
     }
     embedlyOembed(fullimgurl, function(embed){
@@ -128,6 +129,7 @@ var embedlyOembed = function(url, callback){
       var embed = JSON.parse(body);
       callback(embed);
     } else{
+      if(err) console.log(err);
       sendInstagram();
     }
   });
