@@ -171,21 +171,26 @@ var postGif = function(filename){
     var source = "http://instagram.com/p/"+id;
     console.log(source);
     var tag_choices= ['colors', 'fade', 'gradient',
-      'animation', 'instagram', 'calm', 'image processing', 'code art'];
+      'animation', 'calm', 'image processing', 'code art'];
     var random_tag = getRandomElement(tag_choices);
     console.log("random tag: "+random_tag);
     tumblr.post('/post', {
       type: 'photo',
       source: source,
       data: [photo],
-      tags: 'sunset, pixel sort, '+ random_tag+','+ source
+      tags: 'pixel sort,'+ random_tag+', sunset, instagram,'+ source
     }, function(err, json){
       console.log(json, err);
       if (err) console.error(err);
       console.log("posted on tumblr");
+      var removeoriginal = exec('rm ' + __dirname + "/media/" + id +".jpg",
+        function(err, stdout, stderr){
+        if (err) console.error(err);
+        console.log('deleted original from hd');
+      });
       var removegif = exec('rm '+filename, function(err, stdout, stderr){
         if (err) console.error(err);
-        console.log('deleted gif from hd');
+        console.log('deleted altered from hd');
       });
       process.exit();
     });
