@@ -178,7 +178,7 @@ var postGif = function(filename){
       type: 'photo',
       source: source,
       data: [photo],
-      tags: 'pixel sort,'+ random_tag+', sunset, instagram,'+ source
+      tags: source +','+ random_tag+', sunset, instagram, pixel sort'
     }, function(err, json){
       console.log(json, err);
       if (err) console.error(err);
