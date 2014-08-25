@@ -1,0 +1,7 @@
+
+Usage: stackBlurImage( sourceImageID, targetCanvasID, radius, blurAlphaChannel );
+or: stackBlurCanvasRGBA( targetCanvasID, top_x, top_y, width, height, radius );
+or: stackBlurCanvasRGB( targetCanvasID, top_x, top_y, width, height, radius );
+
+http://stevehanov.ca/blog/index.php?id=116
+LAB space for color diff
